@@ -1,0 +1,10 @@
+test_that("grow works", {
+  init <- c(3,4,3,1,2)
+  expect_equal(grow(init, 1), 5)
+  expect_equal(grow(init, 2), 6)
+  expect_equal(grow(init, 3), 7)
+  expect_equal(grow(init, 4), 9)
+  expect_equal(grow(init, 5), 10)
+  expect_equal(grow(init, 18), 26)
+  expect_equal(grow(init, 80), 5934)
+})

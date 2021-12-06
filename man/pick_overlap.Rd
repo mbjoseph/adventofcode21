@@ -4,19 +4,19 @@
 \alias{pick_overlap}
 \title{part 1}
 \usage{
-pick_overlap(f, diag = TRUE)
+pick_overlap(f, allow_diagonals = TRUE)
 }
 \arguments{
 \item{f}{input file}
 
-\item{diag}{whether to permit diagonal lines}
+\item{allow_diagonals}{whether to permit diagonal lines}
 }
 \description{
 part 1
 }
 \examples{
 f <- system.file("extdata", "day5.txt", package = "adventofcode21")
-pick_overlap(f, diag = FALSE)
-pick_overlap(f, diag = TRUE)
+pick_overlap(f, allow_diagonals = FALSE)
+pick_overlap(f, allow_diagonals = TRUE)
 
 }

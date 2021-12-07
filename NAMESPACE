@@ -2,10 +2,12 @@
 
 export("%>%")
 export(count_increased)
+export(fancy_least_cost)
 export(gamma_epsilon_prod)
 export(get_aimed_result)
 export(grow)
 export(in_to_matrix)
+export(least_cost)
 export(o2_co2_prod)
 export(pick_board)
 export(pick_overlap)

@@ -14,10 +14,10 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
   file
 )
 
-test_that("multiplication works", {
-  expect_equal(f(outfile), 26)
+test_that("easy_finder works", {
+  expect_equal(easy_finder(file), 26)
 })
 
-test_that("f2 works", {
-  expect_equal(f2(outfile), 61229)
+test_that("decoded_sum works", {
+  expect_equal(decoded_sum(file), 61229)
 })

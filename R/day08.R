@@ -3,13 +3,14 @@
 #' @param file in file
 #'
 #' @examples
-#' f(system.file("extdata", "day8.txt", package = "adventofcode21")) 303
-#' f2(system.file("extdata", "day8.txt", package = "adventofcode21")) 961734
+#' file <- system.file("extdata", "day8.txt", package = "adventofcode21")
+#' easy_finder(file) # 303
+#' decoded_sum(file) # 961734
 #'
 #' @export
-f <- function(file) {
-  d <- readLines(file)
-  char_counts <- purrr::map_chr(d, ~gsub(".*\\| ", "", .x)) %>%
+easy_finder <- function(file) {
+  char_counts <- readLines(file) %>%
+    purrr::map_chr(~gsub(".*\\| ", "", .x)) %>%
     paste(collapse = " ") %>%
     strsplit(split = " ") %>%
     unlist() %>%
@@ -18,52 +19,64 @@ f <- function(file) {
   sum(char_counts[c("2", "3", "4", "7")])
 }
 
-f2 <- function(file) {
-  d <- readLines(file)
+#' Decode and sum
+#'
+#' @param file input file
+#'
+#' @importFrom dplyr summarize
+#' @importFrom tidyr unnest
+#'
+#' @export
+decoded_sum <- function(file) {
+  long_rows <- readLines(file) %>%
+    tibble::as_tibble() %>%
+    tidyr::separate(value, into = c("input", "output"), sep = " \\| ") %>%
+    dplyr::mutate(row = dplyr::row_number()) %>%
+    tidyr::pivot_longer(c("input", "output")) %>%
+    dplyr::group_by(name, row) %>%
+    dplyr::summarize(value = strsplit(value, split = " "), .groups = "drop") %>%
+    tidyr::unnest(value) %>%
+    # order doesn't tell us anything - we can sort without changing meaning
+    dplyr::mutate(value = purrr::map_chr(value, sort_string))
 
-  vals <- rep(NA, length(d))
+  decoder <- long_rows %>%
+    dplyr::filter(name == "input") %>%
+    # grouping is necessary here, as the number of shared characters is
+    # row-specific (each row has it's own signal mapping)
+    dplyr::group_by(row) %>%
+    dplyr::mutate(
+      nc = nchar(value),
+      n_shared_1 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 2])),
+      n_shared_4 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 4])),
+      n_shared_7 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 3])),
+      # deduce remaining digits based on number of characters (nc) and the
+      # number of shared signals (letters) with known digit encodings
+      digit = dplyr::case_when(
+        nc == 6 & n_shared_1 == 2 & n_shared_4 == 3 & n_shared_7 == 3 ~ 0,
+        nc == 2 ~ 1,
+        nc == 5 & n_shared_1 == 1 & n_shared_4 == 2 & n_shared_7 == 2 ~ 2,
+        nc == 5 & n_shared_1 == 2 & n_shared_4 == 3 & n_shared_7 == 3 ~ 3,
+        nc == 4 ~ 4,
+        nc == 5 & n_shared_1 == 1 & n_shared_4 == 3 & n_shared_7 == 2 ~ 5,
+        nc == 6 & n_shared_7 == 2 & n_shared_1 == 1 ~ 6,
+        nc == 3 ~ 7,
+        nc == 7 ~ 8,
+        nc == 6 & n_shared_1 == 2 & n_shared_4 == 4 & n_shared_7 == 3 ~ 9
+      )
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(row, value, digit)
 
-  for (i in seq_along(d)) {
-    long_row <- d[i] %>%
-      as_tibble() %>%
-      separate(value, into = c("input", "output"), sep = " \\| ") %>%
-      pivot_longer(everything()) %>%
-      group_by(name) %>%
-      summarize(value = strsplit(value, split = " ")) %>%
-      unnest(value) %>%
-      mutate(value = purrr::map_chr(value, sort_string))
+  decoded_output <- long_rows %>%
+    dplyr::filter(name == "output") %>%
+    dplyr::left_join(decoder, by = c("row", "value"))
 
-    decoder <- long_row %>%
-      filter(name == "input") %>%
-      mutate(
-        nc = nchar(value),
-        n_sh_1 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 2])),
-        n_sh_4 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 4])),
-        n_sh_7 = purrr::map_int(value, ~n_shared_char(.x, value[nc == 3])),
-        digit = case_when(
-          nc == 6 & n_sh_1 == 2 & n_sh_4 == 3 & n_sh_7 == 3 ~ 0,
-          nc == 2 ~ 1,
-          nc == 5 & n_sh_1 == 1 & n_sh_4 == 2 & n_sh_7 == 2 ~ 2,
-          nc == 5 & n_sh_1 == 2 & n_sh_4 == 3 & n_sh_7 == 3 ~ 3,
-          nc == 4 ~ 4,
-          nc == 5 & n_sh_1 == 1 & n_sh_4 == 3 & n_sh_7 == 2 ~ 5,
-          nc == 6 & n_sh_7 == 2 & n_sh_1 == 1 ~ 6,
-          nc == 3 ~ 7,
-          nc == 7 ~ 8,
-          nc == 6 & n_sh_1 == 2 & n_sh_4 == 4 & n_sh_7 == 3 ~ 9
-        )
-      ) %>%
-      select(value, digit)
-
-    decoded_output <- long_row %>%
-      filter(name == "output") %>%
-      left_join(decoder, by = "value")
-
-    vals[i] <- paste(decoded_output$digit, collapse = "") %>%
-      as.numeric()
-  }
-
-  sum(vals)
+  # construct four digit numbers from the decoded digits and sum
+  decoded_output %>%
+    dplyr::group_by(row) %>%
+    dplyr::summarize(digits = as.numeric(paste(digit, collapse = ""))) %>%
+    dplyr::pull(digits) %>%
+    sum()
 }
 
 

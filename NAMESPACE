@@ -2,6 +2,7 @@
 
 export("%>%")
 export(count_increased)
+export(f)
 export(fancy_least_cost)
 export(gamma_epsilon_prod)
 export(get_aimed_result)

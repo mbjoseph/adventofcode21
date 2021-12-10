@@ -18,6 +18,8 @@ Imports:
     readr,
     rlang,
     statip,
+    stringr, 
+    stringi,
     tibble, 
     tidyr, 
     tidyselect

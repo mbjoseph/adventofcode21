@@ -2,6 +2,8 @@
 
 export("%>%")
 export(basin_size)
+export(completion_score)
+export(corruption_score)
 export(count_increased)
 export(decoded_sum)
 export(easy_finder)

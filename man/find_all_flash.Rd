@@ -2,7 +2,7 @@
 % Please edit documentation in R/day11.R
 \name{find_all_flash}
 \alias{find_all_flash}
-\title{part 2}
+\title{part 2: find when all things flash}
 \usage{
 find_all_flash(file)
 }
@@ -10,7 +10,7 @@ find_all_flash(file)
 \item{file}{input file}
 }
 \description{
-part 2
+part 2: find when all things flash
 }
 \examples{
 \dontrun{

@@ -63,7 +63,7 @@ count_flashes <- function(file) {
 
 
 
-#' part 2
+#' part 2: find when all things flash
 #'
 #' @param file input file
 #'

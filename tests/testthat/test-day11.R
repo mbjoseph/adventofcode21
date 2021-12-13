@@ -17,3 +17,7 @@ file
 test_that("count_flashes works", {
   expect_equal(count_flashes(file), 1656)
 })
+
+test_that("find_all_flash works", {
+  expect_equal(find_all_flash(file), 195)
+})

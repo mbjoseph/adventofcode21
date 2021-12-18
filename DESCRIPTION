@@ -13,10 +13,12 @@ RoxygenNote: 7.1.2
 Imports: 
     assertthat,
     dplyr,
+    gmp,
     magrittr,
     purrr,
     readr,
     rlang,
+    Rmpfr,
     statip,
     stringr, 
     stringi,

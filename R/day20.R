@@ -88,45 +88,8 @@ enhance_image <- function(file, times) {
         `+`(1) %>%
         substr(algo, ., .)
     }
-
-    print(i)
-    print(void)
-    print("Rows:")
-    print(nrow(out))
-
     input_image <- out
   }
 
-
   nrow(input_image)
-
-}
-
-get_window <- function(row, col) {
-
-  bin_string <- data.frame(
-    row = row + rep(c(-1, 0, 1), each = 3),
-    col = col + rep(c(-1, 0, 1), 3)
-  ) %>%
-    left_join(input_image, by = c("row", "col")) %>%
-    mutate(
-      row_in = between(row, min_row, max_row),
-      col_in = between(col, min_col, max_col),
-      in_grid = row_in & col_in,
-      # if we are extracting values outside of our input grid, use void
-      # otherwise, use "."
-      value = case_when(
-        is.na(value) & in_grid ~ ".",
-        is.na(value) & !in_grid ~ void,
-        TRUE ~ value
-      ),
-      value = ifelse(value == ".", 0, 1)) %>%
-    pull(value) %>%
-    paste0(collapse = "")
-
-  algo_index <- bin_string %>%
-    strtoi(base = 2L) %>%
-    `+`(1) # to account for 0 indexing
-
-  substr(algo, algo_index, algo_index)
 }
